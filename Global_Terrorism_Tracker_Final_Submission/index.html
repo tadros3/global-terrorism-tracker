@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>Global Terrorism Tracker</title>
+		
+		<!--file below from http://www.erichynds.com/blog/jquery-ui-multiselect-widget-->
+		<link rel="stylesheet" type="text/css" href="jquery.multiselect.css" />
+		<link rel="stylesheet" href="styles.css" />
+		<!--folder in which below file is located downloaded from http://jqueryui.com/download/#!version=1.11.4&components=1111111111111111111111111111111111111&zThemeParams=5d00000100ff05000000000000003d8888d844329a8dfe02723de3e5701fa198449035fc0613ff729a37dd818cf92b1f6938fefa90282d04ae436bb72367f5909357c629e832248af2c086db4ab730aa4cced933a88449eca62a2077f3b23d47f58a712d809b6088edfb376d83e455b59f1bd990b3e590e5b9859f221228f742dd665bf96b9fd9e3574ac7fcf6b14180770cff19badfcd5912cafe1d15076a7cd5d6a38f5bf3de8777b7e0e46ddecad664f6da67d9e7ed6866f388de5f52cfa28800fa5f71b0d93ac44a679f85e674f50a8fa0d7091eeb89e4b61afc078b70df935316b54fef3ee3f350018f888afd65b83b1aa11577cf937c215bae2e5e55588ceb579c861c19667fd1f186603329813b27af2c7c673689add67c71bf05955878df03b921ede3f895c3b23aae7b86cbed8d3539e6d6795e69a7a8bd94c049208eee6cbbb88bfeb0788988037dc3bebccc889d34b1e89d03011a2a1425c09711378a2058c9cf79a3022dbcffa63f0366c7b5a4d1e2da0c3cb70ec0dc311bd10631b737a9a797d68640f31c416006647304297a0f4758bd7050d8a76bab2d414c6fc2f8d7459e9019c4d41e3b79c78e456703f8cba0ac01c1adae86d23ccdecda8afe23c7a77ab25dce84e6e7d76a4a0067190a03cfd31b17f2ef41b9769f7e28adef1ec42c8ede8f443143d6ffbcc2bd3e-->
+		<link rel="stylesheet" type="text/css" href="jquery-ui-1.11.4.custom/jquery-ui.css" />
+		
+		<script type="text/javascript" src="jquery-1.12.2.js"></script><!--source?-->
+		<!--folder in which below file is located downloaded from http://jqueryui.com/download/#!version=1.11.4&components=1111111111111111111111111111111111111&zThemeParams=5d00000100ff05000000000000003d8888d844329a8dfe02723de3e5701fa198449035fc0613ff729a37dd818cf92b1f6938fefa90282d04ae436bb72367f5909357c629e832248af2c086db4ab730aa4cced933a88449eca62a2077f3b23d47f58a712d809b6088edfb376d83e455b59f1bd990b3e590e5b9859f221228f742dd665bf96b9fd9e3574ac7fcf6b14180770cff19badfcd5912cafe1d15076a7cd5d6a38f5bf3de8777b7e0e46ddecad664f6da67d9e7ed6866f388de5f52cfa28800fa5f71b0d93ac44a679f85e674f50a8fa0d7091eeb89e4b61afc078b70df935316b54fef3ee3f350018f888afd65b83b1aa11577cf937c215bae2e5e55588ceb579c861c19667fd1f186603329813b27af2c7c673689add67c71bf05955878df03b921ede3f895c3b23aae7b86cbed8d3539e6d6795e69a7a8bd94c049208eee6cbbb88bfeb0788988037dc3bebccc889d34b1e89d03011a2a1425c09711378a2058c9cf79a3022dbcffa63f0366c7b5a4d1e2da0c3cb70ec0dc311bd10631b737a9a797d68640f31c416006647304297a0f4758bd7050d8a76bab2d414c6fc2f8d7459e9019c4d41e3b79c78e456703f8cba0ac01c1adae86d23ccdecda8afe23c7a77ab25dce84e6e7d76a4a0067190a03cfd31b17f2ef41b9769f7e28adef1ec42c8ede8f443143d6ffbcc2bd3e-->
+		<script type="text/javascript" src="jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+		<!--file below from http://www.erichynds.com/blog/jquery-ui-multiselect-widget-->
+		<script type="text/javascript" src="jquery.multiselect.js"></script>
+		<script type="text/javascript" src="main.js"></script>
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+        <script src="http://d3js.org/queue.v1.min.js"></script>
+        <script type="text/javascript" src="js/topojson.v1.min.js"></script>
+
+	</head>
+	<body>
+		
+		<div id="firstPage" style="display:block">
+            <div id="firstMap">
+                <h1 id="header" class="allLabel" style="font-size:40px">Global Terrorism Tracker</h1>
+                <canvas id="myCanvas"></canvas>
+                <div id="globeLegend"></div>
+                <h2 class='allLabel' id='mostAttacksIn'></h2>
+                <h2 class='allLabel' id='totAttacks'></h2>
+                <h2 class='highlighted' id='year'></h2>
+                <h2 class='highlighted' id='total'></h2>
+                <button id="continue" onclick="start()" style="font-family:Helvetica Neue">Continue</button>
+            </div>
+            <h2></h2>
+		</div>
+	<div id="mainPage" style="display:none">
+
+		<h1 class="allLabel">Global Terrorism Tracker</h1>
+
+		<div id="selectionAlert" title="Invalid Selection"><p>This is not a valid territory selection!</p></div>
+		<div id="menuAlert" title="Invalid Menu Selection"><p>You cannot unselect all options in a menu!</p></div>
+		
+		<div class="wrap">
+			<div class="wrap-left">	
+				<div id="map_container">
+	            	<div class="container" id="container"></div>
+	            </div>
+		        <div class="wrap3" id="wrap3">
+		            <div id="timeSlider_div">
+		            	<!--Slider div solution found at http://jqueryui.com/slider/#range-->
+		            	<div id="timeSliderText_div"><label id="timeSlider_text">Year Range</label><input type="text" id="time_range" readonly style="border:0"><br>
+						<div id="timeSlider"></div><br></div>
+		            </div>
+		            <div id="filters">
+				        <div class="wrap4">
+			        		<div id="div_location_filter" class="dropdownmenu"><label>Location:</label><br>
+								<select id='location_menu_filter' multiple="multiple">
+									<option value="Australasia & Oceania">Australasia and Oceania</option>
+									<option value="Central America & Caribbean">Central America and the Caribbean</option>
+									<option value="Central Asia">Central Asia</option>
+									<option value="East Asia">East Asia</option>
+									<option value="Eastern Europe">Eastern Europe</option>
+									<option value="Middle East & North Africa">Middle East and North Africa</option>
+									<option value="North America">North America</option>
+									<option value="South America">South America</option>
+									<option value="South Asia">South Asia</option>
+									<option value="Southeast Asia">Southeast Asia</option>
+									<option value="Sub-Saharan Africa">Sub-Saharan Africa</option>
+									<option value="Western Europe">Western Europe</option>
+								</select>
+							</div>
+							<div id="div_group_filter" class="dropdownmenu"><label>Group Responsible:</label><br>
+								<select id='group_menu_filter' multiple="multiple">
+									<option id="Taliban_filt" value="Taliban">Taliban</option>
+									<option value="Revolutionary Armed Forces of Colombia (FARC)">Revolutionary Armed Forces of Colombia (FARC)</option>
+									<option value="Al-Shabaab">Al-Shabaab</option>
+									<option value="Islamic State of Iraq and the Levant (ISIL)">Islamic State of Iraq and the Levant (ISIL)</option>
+									<option value="Communist Party of India - Maoist (CPI-Maoist)">Communist Party of India - Maoist (CPI-Maoist)</option>
+									<option value="Kurdistan Workers' Party (PKK)">Kurdistan Workers' Party (PKK)</option>
+									<option value="Liberation Tigers of Tamil Eelam (LTTE)">Liberation Tigers of Tamil Eelam (LTTE)</option>
+									<option value="New People's Army (NPA)">New People's Army (NPA)</option>
+									<option value="Boko Haram">Boko Haram</option>
+									<option value="Shining Path (SL)">Shining Path (SL)</option>
+									<option value="Other">Other</option>
+									<option value="Unknown">Unknown</option>
+								</select>
+							</div>
+							<div id="div_attack" class="dropdownmenu"><label>Attack Method:</label><br>
+								<select id='attack_menu' multiple="multiple">
+									<option value="Assassination">Assassination</option>
+									<option value="Armed Assault">Armed Assault</option>
+									<option value="Bombing/Explosion">Bombing/Explosion</option>
+									<option value="Hijacking">Hijacking</option>
+									<option value="Hostage Taking (Barricade Incident)">Hostage Taking (Barricade Incident)</option>
+									<option value="Hostage Taking (Kidnapping)">Hostage Taking (Kidnapping)</option>
+									<option value="Facility/Infrastructure Attack">Facility/Infrastructure Attack</option>
+									<option value="Unarmed Assault">Unarmed Assault</option>
+									<option value="Unknown">Unknown</option>
+								</select>
+							</div>
+							<div id="div_target_filter" class="dropdownmenu"><label>Target Type:</label><br>
+								<select id='target_menu_filter' multiple="multiple">
+									<option value="Government, Police, & Military">Government, Police, and Military</option>
+									<option value="Business, Media, & Private Citizens">Business, Media, and Private Citizens</option>
+									<option value="Education, NGOs, and Religious">Education, NGOs, and Religious</option>
+									<option value="Transportation, Infrastructure, & Food/Water">Transportation, Infrastructure, and Food/Water</option>
+									<option value="Terrorists & Violent Political Parties">Terrorists and Violent Political Parties</option>
+									<option value="Other">Other</option>
+									<option value="Unknown">Unknown</option>
+								</select>
+							</div>
+							<div id="div_amtarget" class="dropdownmenu"><label>American Target:</label><br>
+								<select id='amtarget_menu'>
+									<option value="Yes">Yes</option>
+									<option value="No">No</option>
+									<option value="Either" selected>Either</option>
+								</select>
+							</div>
+							<div id="div_suicide_attack" class="dropdownmenu"><label>Suicide Attack:</label><br>
+								<select id='suicide_attack_menu'>
+									<option value="Yes">Yes</option>
+									<option value="No">No</option>
+									<option value="Either" selected>Either</option>
+								</select>
+							</div>
+						</div>
+						<div class="wrap4">
+							<div id="div_damage" class="dropdownmenu"><label>Damage Level:</label><br>
+								<select id='damage_menu'  multiple="multiple">
+									<option value="None">None</option>
+									<option value="Minor (likely < $1 million)">Minor (<$1 mil.)</option>
+									<option value="Major (likely > $1 million but < $1 billion)">Major (>$1 mil., <$1 bil.)</option>
+									<option value="Catastrophic (likely > $1 billion)">Catastrophic (>$1 bil.)</option>
+									<option value="Incomplete Data">Incomplete Data</option>
+								</select>
+							</div>	
+							<div id="deaths_selector">
+								<!--Slider div solution found at http://jqueryui.com/slider/#range-->
+								<div class="dropdownmenu" id="deaths_label"><label id="deaths_text">Deaths</label><input type="text" id="casualties" readonly style="border:0"><br>
+								<div id="deaths_slider"></div><br></div>
+							</div>
+							<div id="filterTitle2"></div>
+							<div id="div_colorcode" class="dropdownmenu"><label>Variable on Vertical Axis:</label><br>
+								<select id='colorcode_menu'>
+									<option value="Location">Location</option>
+									<option value="Group" selected="selected">Group</option>
+									<option value="Target Type">Target Type</option>
+								</select>
+							</div>
+							<div id="div_hmaxis" class="dropdownmenu"><label>Heatmap Frequencies Based On:</label><br>
+								<select id='hmaxis_menu'>
+									<option value="Vertical Axis Variable" selected>Vertical Axis Variable</option>
+									<option value="Attack">Attack Method</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+		    </div>
+		    <div class="wrap-right">
+	            <div class="chart" id="chart"></div>
+		        <div class="heatmap" id="heatmap"></div>
+	        </div>
+        </div>
+        <div id="loading" style="display:none">
+        	<h1 id="loadLabel">LOADING</h1>
+        </div>
+    </div>
+	</body>
+
+</html>
